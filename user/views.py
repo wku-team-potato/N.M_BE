@@ -5,10 +5,11 @@ from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-from django.contrib.auth.models import User
+# from django.contrib.auth.models import User
+# from django.contrib.auth.models import AbstractBaseUser
+from django.contrib.auth import get_user_model
 from django.contrib.auth import authenticate, login, logout
 from django.core.validators import validate_email
-from django.core.exceptions import ValidationError
 
 import json
 
@@ -23,6 +24,7 @@ class SignUp(View):
         
         username = data.get('username')
         email = data.get('email')
+        # nickname = data.get('nickname')
         password = data.get('password')
         
         if not username or not password:
@@ -32,6 +34,8 @@ class SignUp(View):
             validate_email(email)
         except:
             return JsonResponse({'error': '유효한 이메일 주소를 입력해주세요.'}, status=400)
+        
+        User = get_user_model()
         
         if User.objects.filter(username=username).exists():
             return JsonResponse({'error': '이미 존재하는 사용자명입니다.'})
@@ -47,6 +51,7 @@ class SignUp(View):
 class Login(View):
     def get(self, request):
         return HttpResponse('[Login API] EndPoint is working')
+    
     def post(self, request):
         data = json.loads(request.body)
         

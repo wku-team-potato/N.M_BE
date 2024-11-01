@@ -38,7 +38,7 @@ else:
 # Application definition
 
 INSTALLED_APPS = [
-    "django.contrib.admin",
+    # "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
     "django.contrib.sessions",
@@ -46,9 +46,11 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "drf_yasg",
-    "user_api",
-    "community_api",
-    "nutrition_api",
+    "user",
+    "profiles",
+    # "community_api",
+    "nutrition",
+    "meal",
 ]
 
 MIDDLEWARE = [
@@ -96,6 +98,9 @@ DATABASES = {
         "OPTIONS": {"charset": "utf8mb4"},
     }
 }
+
+# 닉네임 추가를 위한 사용자 모델 변경
+AUTH_USER_MODEL = 'user.User'
 
 # Password validation
 # https://docs.djangoproject.com/en/4.2/ref/settings/#auth-password-validators

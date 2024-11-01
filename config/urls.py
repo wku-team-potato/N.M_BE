@@ -18,10 +18,12 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
-    path("admin/", admin.site.urls),
-    path("api/v1/auth/", include("user_api.urls")),
-    path("api/v1/community/", include("community_api.urls")),
-    path("api/v1/nutrition/", include("nutrition_api.urls")),
+    # path("admin/", admin.site.urls),
+    path("api/v1/auth/", include("user.urls")),
+    path("api/v1/profiles/", include("profiles.urls")),
+    # path("api/v1/community/", include("community_api.urls")),
+    path("api/v1/nutrition/", include("nutrition.urls")),
+    path("api/v1/meal/", include("meal.urls")),
     path("api/v1/swagger/", schema_view.with_ui("swagger", cache_timeout=0)),
     path("api/v1/redoc/", schema_view.with_ui("redoc", cache_timeout=0)),
 ]
