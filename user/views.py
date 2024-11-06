@@ -16,7 +16,7 @@ from profile.models import Profile
 import json
 
 # Create your views here.
-# @method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class SignUp(View):
     def get(self, request):
         return HttpResponse('[SignUp API] EndPoint is working')
@@ -53,7 +53,7 @@ class SignUp(View):
         
         return JsonResponse({'success': '회원가입이 완료되었습니다.'}, status=201)
 
-# @method_decorator(csrf_exempt, name='dispatch')
+@method_decorator(csrf_exempt, name='dispatch')
 class Login(View):
     def get(self, request):
         return HttpResponse('[Login API] EndPoint is working')
