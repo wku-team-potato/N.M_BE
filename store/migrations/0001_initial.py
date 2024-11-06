@@ -11,17 +11,26 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('nutrition', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserMeal',
+            name='Item',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('meal_type', models.CharField(choices=[('breakfast', '아침'), ('lunch', '점심'), ('dinner', '저녁')], max_length=10)),
+                ('name', models.CharField(max_length=100)),
+                ('description', models.TextField()),
+                ('price', models.IntegerField()),
+                ('img', models.ImageField(upload_to='images/items/')),
                 ('created_at', models.DateField(auto_now_add=True)),
-                ('food', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='nutrition.foods')),
+            ],
+        ),
+        migrations.CreateModel(
+            name='PurchaseRecord',
+            fields=[
+                ('id', models.BigAutoField(primary_key=True, serialize=False)),
+                ('created_at', models.DateField(auto_now_add=True)),
+                ('item', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.item')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),

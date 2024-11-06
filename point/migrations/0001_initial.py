@@ -11,17 +11,17 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('nutrition', '0001_initial'),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='UserMeal',
+            name='PointTransaction',
             fields=[
                 ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('meal_type', models.CharField(choices=[('breakfast', '아침'), ('lunch', '점심'), ('dinner', '저녁')], max_length=10)),
+                ('points_changed', models.IntegerField()),
+                ('transaction_type', models.CharField(max_length=10)),
+                ('description', models.TextField()),
                 ('created_at', models.DateField(auto_now_add=True)),
-                ('food', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='nutrition.foods')),
                 ('user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),

@@ -2,9 +2,9 @@ from django.db import models
 
 # Create your models here.
 class Foods(models.Model):
-    food_code = models.BigAutoField(primary_key=True)
+    food_id = models.BigAutoField(primary_key=True)
     food_name = models.CharField(max_length=20, null=False)
-    serving_size = models.CharField(max_length=20, null=False, help_text='g')
+    serving_size = models.FloatField(max_length=20, null=False, help_text='g')
     energy = models.FloatField(null=False, help_text='kcal')
     carbohydrate = models.FloatField(null=False, help_text='g')
     sugars = models.FloatField(null=True, help_text='g')
@@ -19,7 +19,9 @@ class Foods(models.Model):
     zinc = models.FloatField(null=True, help_text='mg')
     cholesterol = models.FloatField(null=True, help_text='mg')
     trans_fat = models.FloatField(null=True, help_text='g')
-    
+
+    class Meta:
+        db_table = 'food'
 
     def __str__(self):
         return self.food_name
