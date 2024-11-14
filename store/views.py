@@ -9,38 +9,24 @@ from .serializers import ItemSerializer
 from .serializers import PurchaseRecordSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_yasg.utils import swagger_auto_schema
+from .services import purchase_item
 
-class ItemBuyView(generics.UpdateAPIView):
+class ItemBuyView(generics.GenericAPIView):
     """_summary_
         description:
         - Profile의 total_points를 확인하여 아이템 가격과 비교 후 구매 처리
     """
     queryset = Item.objects.all()
-    serializer_class = ItemSerializer
+    # serializer_class = ItemSerializer
     lookup_field = 'id'
     
-    def update(self, request, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         item = self.get_object()
         user_id = request.user.id
         
         try:
-            user_profile = Profile.objects.get(user_id=user_id)
-            
-            if user_profile.total_points < item.price:
-                return Response(
-                    {'message': '포인트가 부족하여 구매할 수 없습니다.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
-            
-            with transaction.atomic():
-                user_profile.total_points -= item.price
-                user_profile.save()
-                
-                PurchaseRecord.objects.create(
-                    user_id=request.user.id,
-                    item_id=item.id,
-                    created_at=timezone.now()
-                )
+            user_profile = Profile.objects.get(user_id=user_id)            
+            purchase_item(request.user, item)
             
             response_data = {
                 "message": "아이템 구매가 완료되었습니다.",
@@ -48,6 +34,32 @@ class ItemBuyView(generics.UpdateAPIView):
                 "item": ItemSerializer(item).data
             }
             return Response(response_data, status=status.HTTP_200_OK)
+        
+        # try:
+        #     user_profile = Profile.objects.get(user_id=user_id)
+            
+        #     if user_profile.total_points < item.price:
+        #         return Response(
+        #             {'message': '포인트가 부족하여 구매할 수 없습니다.'},
+        #             status=status.HTTP_400_BAD_REQUEST
+        #         )
+            
+        #     with transaction.atomic():
+        #         user_profile.total_points -= item.price
+        #         user_profile.save()
+                
+        #         PurchaseRecord.objects.create(
+        #             user_id=request.user.id,
+        #             item_id=item.id,
+        #             created_at=timezone.now()
+        #         )
+            
+        #     response_data = {
+        #         "message": "아이템 구매가 완료되었습니다.",
+        #         "remaining_points": user_profile.total_points,
+        #         "item": ItemSerializer(item).data
+        #     }
+        #     return Response(response_data, status=status.HTTP_200_OK)
         
         except Profile.DoesNotExist:
             return Response(
