@@ -10,6 +10,8 @@ from .serializers import PurchaseRecordSerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_yasg.utils import swagger_auto_schema
 from .services import purchase_item
+from point.services import InsufficientPointsException
+from rest_framework.exceptions import ValidationError
 
 class ItemBuyView(generics.GenericAPIView):
     """_summary_
@@ -66,6 +68,9 @@ class ItemBuyView(generics.GenericAPIView):
                 {'message': '프로필 정보가 없습니다.'},
                 status=status.HTTP_404_NOT_FOUND
             )
+        except InsufficientPointsException as e:
+        # 포인트 부족으로 인한 400 오류 처리
+            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 class ItemRetrieveView(generics.RetrieveAPIView):
     """_summary_
