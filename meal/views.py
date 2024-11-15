@@ -15,7 +15,7 @@ from django.utils.decorators import method_decorator
 # from django.views.decorators.csrf import csrf_exempt
 from point.models import PointTransaction
 
-from point.services import add_points
+
 
 class MealCreateView(generics.CreateAPIView):
     """__sumary__
