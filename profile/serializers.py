@@ -58,6 +58,13 @@ class HeightWeightRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = HeightWeightRecord
         fields = ['user_id', 'height', 'weight', 'created_at']
+
+class RankingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Profile
+        fields = ['username', 'consecutive_attendance_days', 'cumulative_attendance_days',
+                'consecutive_goals_achieved', 'cumulative_goals_achieved']
+
         
 
 

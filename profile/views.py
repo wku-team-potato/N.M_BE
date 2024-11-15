@@ -208,6 +208,92 @@ class HeightWeightRecordListView(generics.ListAPIView):
     #     user_id = self.kwargs.get(self.lookup_field)
     #     return HeightWeightRecord.objects.filter(user_id=user_id).order_by('-created_at')
 
+from .serializers import RankingSerializer
+
+class Top3RankingsView(generics.ListAPIView):
+    """
+    연속/누적 출석일수와 목표달성 TOP 3 랭킹을 조회하는 APIView
+    """
+    serializer_class = RankingSerializer
+    permission_classes = [IsAuthenticated]
+
+    def list(self, request, *args, **kwargs):
+        # 각 카테고리별 TOP 3 추출
+        consecutive_attendance = Profile.objects.all().order_by('-consecutive_attendance_days')[:3]
+        cumulative_attendance = Profile.objects.all().order_by('-cumulative_attendance_days')[:3]
+        consecutive_goals = Profile.objects.all().order_by('-consecutive_goals_achieved')[:3]
+        cumulative_goals = Profile.objects.all().order_by('-cumulative_goals_achieved')[:3]
+
+        response_data = {
+            'consecutive_attendance_rank': [{
+                'rank': idx + 1,
+                'username': profile.username,
+                '연속 출석': profile.consecutive_attendance_days
+            } for idx, profile in enumerate(consecutive_attendance)],
+            
+            'cumulative_attendance_rank': [{
+                'rank': idx + 1,
+                'username': profile.username,
+                '누적 출석': profile.cumulative_attendance_days
+            } for idx, profile in enumerate(cumulative_attendance)],
+            
+            'consecutive_goals_rank': [{
+                'rank': idx + 1,
+                'username': profile.username,
+                '연속 목표 달성': profile.consecutive_goals_achieved
+            } for idx, profile in enumerate(consecutive_goals)],
+            
+            'cumulative_goals_rank': [{
+                'rank': idx + 1,
+                'username': profile.username,
+                '누적 목표 달성': profile.cumulative_goals_achieved
+            } for idx, profile in enumerate(cumulative_goals)]
+        }
+
+        return Response(response_data)
+
+class MyRankingView(generics.RetrieveAPIView):
+    """
+    자신의 랭킹을 조회하는 APIView
+    """
+    permission_classes = [IsAuthenticated]
+    serializer_class = RankingSerializer
+
+    def get_object(self):
+        return Profile.objects.get(user=self.request.user)
+
+    def retrieve(self, request, *args, **kwargs):
+        profile = self.get_object()
+        
+        # 각 카테고리별 자신의 순위 계산
+        consecutive_attendance_rank = Profile.objects.filter(
+            consecutive_attendance_days__gt=profile.consecutive_attendance_days
+        ).count() + 1
+        
+        cumulative_attendance_rank = Profile.objects.filter(
+            cumulative_attendance_days__gt=profile.cumulative_attendance_days
+        ).count() + 1
+        
+        consecutive_goals_rank = Profile.objects.filter(
+            consecutive_goals_achieved__gt=profile.consecutive_goals_achieved
+        ).count() + 1
+        
+        cumulative_goals_rank = Profile.objects.filter(
+            cumulative_goals_achieved__gt=profile.cumulative_goals_achieved
+        ).count() + 1
+
+        response_data = {
+            'user_info': RankingSerializer(profile).data,
+            'rankings': {
+                'consecutive_attendance_rank': consecutive_attendance_rank,
+                'cumulative_attendance_rank': cumulative_attendance_rank,
+                'consecutive_goals_rank': consecutive_goals_rank,
+                'cumulative_goals_rank': cumulative_goals_rank
+            }
+        }
+
+        return Response(response_data)
+
 # class ProfileRetrieveView(generics.RetrieveAPIView):
 #     queryset = Profile.objects.all()
 #     serializer_class = ProfileSerializer

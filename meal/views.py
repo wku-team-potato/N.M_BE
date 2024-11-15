@@ -15,6 +15,8 @@ from django.utils.decorators import method_decorator
 # from django.views.decorators.csrf import csrf_exempt
 from point.models import PointTransaction
 
+from point.services import add_points
+
 class MealCreateView(generics.CreateAPIView):
     """__sumary__
     description:
@@ -36,28 +38,28 @@ class MealCreateView(generics.CreateAPIView):
         response = super().create(request, *args, **kwargs)
         response.data['message'] = '식단이 성공적으로 기록되었습니다.'
         
-        point_earned = False
+        # point_earned = False
         
-        if not PointTransaction.objects.filter(user=user, created_at=today, transaction_type="출석 보상").exists():
-            profile.total_points += 100
-            profile.save()
-            PointTransaction.objects.create(user=user, points_changed=100, transaction_type="출석 보상", description="식단을 등록하여 100포인트를 획득하였습니다.")
-            point_earned = True
+        # if not PointTransaction.objects.filter(user=user, created_at=today, transaction_type="출석 보상").exists():
+        #     profile.total_points += 100
+        #     profile.save()
+        #     PointTransaction.objects.create(user=user, points_changed=100, transaction_type="출석 보상", description="식단을 등록하여 100포인트를 획득하였습니다.")
+        #     point_earned = True
         
-        meal_types = today_meals.values_list('meal_type', flat=True)
-        if {'breakfast', 'lunch', 'dinner'}.issubset(meal_types) and not PointTransaction.objects.filter(user=user, created_at=today, transaction_type='모든 식단 등록').exists():
-            profile.total_points += 200
-            profile.save()
-            PointTransaction.objects.create(
-                user=user,
-                points_changed=200,
-                transaction_type='모든 식단 등록',
-                description='아침, 점심, 저녁 식단을 모두 등록하여 200포인트를 획득하였습니다.'
-            )
-            point_earned = True
+        # meal_types = today_meals.values_list('meal_type', flat=True)
+        # if {'breakfast', 'lunch', 'dinner'}.issubset(meal_types) and not PointTransaction.objects.filter(user=user, created_at=today, transaction_type='모든 식단 등록').exists():
+        #     profile.total_points += 200
+        #     profile.save()
+        #     PointTransaction.objects.create(
+        #         user=user,
+        #         points_changed=200,
+        #         transaction_type='모든 식단 등록',
+        #         description='아침, 점심, 저녁 식단을 모두 등록하여 200포인트를 획득하였습니다.'
+        #     )
+        #     point_earned = True
         
-        if point_earned:
-            response.data['point_message'] = '포인트를 획득하였습니다'
+        # if point_earned:
+        #     response.data['point_message'] = '포인트를 획득하였습니다'
         
         return response
 

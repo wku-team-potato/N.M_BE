@@ -24,6 +24,7 @@ def add_points(user, points, description="보상"):
 
     # 포인트 적립
     user.profile.total_points += points
+    user.profile.save()  # profile 객체 저장
     user.save()
     
     # 트랜잭션 기록
@@ -49,9 +50,10 @@ def deduct_points(user, points, description="사용"):
     # 포인트 충분 여부 확인
     if user.profile.total_points < points:
         raise InsufficientPointsException
-    
+
     # 포인트 차감
     user.profile.total_points -= points
+    user.profile.save()
     user.save()
     
     # 트랜잭션 기록

@@ -2,7 +2,7 @@ from django.urls import path, include
 from . import views
 
 urlpatterns = [
-    # path('create/', views.MealCreateView.as_view(), name='meal_create'),
+    path('create/', views.MealCreateView.as_view(), name='meal_create'),
     # path('update/<int:pk>', views.MealUpdateView.as_view(), name='meal_update'),
     # path('delete/<int:pk>', views.MealDeleteView.as_view(), name='meal_delete'),
     # path('list/<str:date>/', views.MealListView.as_view(), name='meal_list'),

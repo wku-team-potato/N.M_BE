@@ -23,4 +23,7 @@ urlpatterns = [
     # height, weight 기록 조회
     # path('heightweightrecord/list/<int:user_id>/', views.HeightWeightRecordListView.as_view(), name='list_heightweightrecord'),
     path('heightweightrecord/list/', views.HeightWeightRecordListView.as_view(), name='list_heightweightrecord'),
+    # 랭킹
+    path('rankings/top3/', views.Top3RankingsView.as_view(), name='rankings-top3'),
+    path('rankings/my/', views.MyRankingView.as_view(), name='rankings-my'),
 ]
