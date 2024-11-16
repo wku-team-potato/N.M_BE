@@ -19,3 +19,10 @@ class PurchaseRecordSerializer(serializers.ModelSerializer):
     class Meta:
         model = PurchaseRecord
         fields = ['id', 'user_id', 'item_id', 'created_at']
+        
+class ItemBuySerializer(serializers.Serializer):
+    item_id = serializers.IntegerField()
+    quantity = serializers.IntegerField(min_value=1, default=1)
+
+    class Meta:
+        fields = []

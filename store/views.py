@@ -7,27 +7,31 @@ from .models import Item
 from .models import PurchaseRecord
 from .serializers import ItemSerializer
 from .serializers import PurchaseRecordSerializer
+from .serializers import ItemBuySerializer
 from rest_framework.parsers import MultiPartParser, FormParser
 from drf_yasg.utils import swagger_auto_schema
 from .services import purchase_item
 from point.services import InsufficientPointsException
 from rest_framework.exceptions import ValidationError
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.views import APIView
+from django.shortcuts import get_object_or_404
 
-class ItemBuyView(generics.GenericAPIView):
-    """_summary_
-        description:
-        - Profile의 total_points를 확인하여 아이템 가격과 비교 후 구매 처리
+class ItemBuyView(APIView):
     """
-    queryset = Item.objects.all()
-    # serializer_class = ItemSerializer
-    lookup_field = 'id'
+    아이템 구매 API
     
-    def post(self, request, *args, **kwargs):
-        item = self.get_object()
-        user_id = request.user.id
-        
+    URL path parameter로 받은 id로 아이템을 구매합니다.
+    """
+    permission_classes = [IsAuthenticated]
+    
+    def post(self, request, id):
         try:
-            user_profile = Profile.objects.get(user_id=user_id)            
+            # get_object_or_404 사용하여 아이템 조회
+            item = get_object_or_404(Item, id=id)
+            user_profile = Profile.objects.get(user_id=request.user.id)
+            
+            # 아이템 구매 처리
             purchase_item(request.user, item)
             
             response_data = {
@@ -36,41 +40,22 @@ class ItemBuyView(generics.GenericAPIView):
                 "item": ItemSerializer(item).data
             }
             return Response(response_data, status=status.HTTP_200_OK)
-        
-        # try:
-        #     user_profile = Profile.objects.get(user_id=user_id)
             
-        #     if user_profile.total_points < item.price:
-        #         return Response(
-        #             {'message': '포인트가 부족하여 구매할 수 없습니다.'},
-        #             status=status.HTTP_400_BAD_REQUEST
-        #         )
-            
-        #     with transaction.atomic():
-        #         user_profile.total_points -= item.price
-        #         user_profile.save()
-                
-        #         PurchaseRecord.objects.create(
-        #             user_id=request.user.id,
-        #             item_id=item.id,
-        #             created_at=timezone.now()
-        #         )
-            
-        #     response_data = {
-        #         "message": "아이템 구매가 완료되었습니다.",
-        #         "remaining_points": user_profile.total_points,
-        #         "item": ItemSerializer(item).data
-        #     }
-        #     return Response(response_data, status=status.HTTP_200_OK)
-        
         except Profile.DoesNotExist:
             return Response(
-                {'message': '프로필 정보가 없습니다.'},
+                {"message": "사용자 프로필을 찾을 수 없습니다."}, 
                 status=status.HTTP_404_NOT_FOUND
             )
-        except InsufficientPointsException as e:
-        # 포인트 부족으로 인한 400 오류 처리
-            return Response({"message": str(e)}, status=status.HTTP_400_BAD_REQUEST)
+        except InsufficientPointsException:
+            return Response(
+                {"message": "포인트가 부족합니다."}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        except Exception as e:
+            return Response(
+                {"message": f"구매 처리 중 오류가 발생했습니다: {str(e)}"}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class ItemRetrieveView(generics.RetrieveAPIView):
     """_summary_

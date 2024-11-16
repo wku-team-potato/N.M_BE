@@ -27,6 +27,7 @@ urlpatterns = [
     path("api/v1/nutrition/", include("nutrition.urls")),
     path('api/v1/store/', include('store.urls')),
     path("api/v1/meal/", include("meal.urls")),
+    path("api/v1/point/", include("point.urls")),
     path("api/v1/swagger/", schema_view.with_ui("swagger", cache_timeout=0)),
     path("api/v1/redoc/", schema_view.with_ui("redoc", cache_timeout=0)),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
