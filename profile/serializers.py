@@ -55,9 +55,15 @@ class HeightWeightRecordSerializer(serializers.ModelSerializer):
         description:
         - HeightWeightRecord 모델의 user_id, height, weight, created_at를 가져오는 serializer
     """
+    
+    username = serializers.SerializerMethodField()
+    
     class Meta:
         model = HeightWeightRecord
-        fields = ['user_id', 'height', 'weight', 'created_at']
+        fields = ['user_id', 'username', 'height', 'weight', 'created_at']
+        
+    def get_username(self, obj):
+        return obj.user.username if obj.user else None
 
 class RankingSerializer(serializers.ModelSerializer):
     class Meta:
