@@ -193,9 +193,9 @@ class MealSummaryView(generics.RetrieveAPIView):
         meals = UserMeal.objects.filter(user=user, date=parse_date(date))
         
         if not meals:
-            return Response({'breakfast': {}, 'lunch': {}, 'dinner': {}})
+            return Response({'breakfast': {}, 'lunch': {}, 'dinner': {}, 'summary': {}})
         
-        summary = {'breakfast': {}, 'lunch': {}, 'dinner': {}}
+        summary = {'breakfast': {}, 'lunch': {}, 'dinner': {}, 'summary': {}}
         for meal_type in ['breakfast', 'lunch', 'dinner']:
             meal_type_meals = meals.filter(meal_type=meal_type)
             summary[meal_type] = {
@@ -204,6 +204,13 @@ class MealSummaryView(generics.RetrieveAPIView):
                 'protein': sum([(meal.food.protein * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals]),
                 'fat': sum([(meal.food.fat * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals])
             }
+            
+        summary['summary'] = {
+            'calorie': sum([(meal.food.energy * (meal.serving_size / meal.food.serving_size)) for meal in meals]),
+            'carbohydrate': sum([(meal.food.carbohydrate * (meal.serving_size / meal.food.serving_size)) for meal in meals]),
+            'protein': sum([(meal.food.protein * (meal.serving_size / meal.food.serving_size)) for meal in meals]),
+            'fat': sum([(meal.food.fat * (meal.serving_size / meal.food.serving_size)) for meal in meals])
+        }
         
         return Response(summary)
 
