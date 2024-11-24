@@ -13,6 +13,10 @@ def update_profile(sender, instance, **kwargs):
         - Profile 모델의 height, weight가 업데이트될 때마다 HeightWeightRecord 모델에 기록하는 signal
     """
     try:
+        # 삭제 중에는 Signal 무시
+        if not instance.pk or not Profile.objects.filter(pk=instance.pk).exists():
+            return
+        
         # 1. 기존 정보 조회
         old_profile = Profile.objects.get(pk=instance.pk)
         

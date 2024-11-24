@@ -193,42 +193,72 @@ class MealSummaryView(generics.RetrieveAPIView):
         meals = UserMeal.objects.filter(user=user, date=parse_date(date))
         
         if not meals:
-            return Response({'carbohydrate': 0, 'protein': 0, 'fat': 0})
+            return Response({'breakfast': {}, 'lunch': {}, 'dinner': {}})
         
-        calorie = sum([(meal.food.energy * (meal.serving_size / meal.food.serving_size)) for meal in meals])
-        carbohydrate = sum([(meal.food.carbohydrate * (meal.serving_size / meal.food.serving_size)) for meal in meals])
-        protein = sum([(meal.food.protein * (meal.serving_size / meal.food.serving_size)) for meal in meals])
-        fat = sum([(meal.food.fat * (meal.serving_size / meal.food.serving_size)) for meal in meals])
+        summary = {'breakfast': {}, 'lunch': {}, 'dinner': {}}
+        for meal_type in ['breakfast', 'lunch', 'dinner']:
+            meal_type_meals = meals.filter(meal_type=meal_type)
+            summary[meal_type] = {
+                'calorie': sum([(meal.food.energy * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals]),
+                'carbohydrate': sum([(meal.food.carbohydrate * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals]),
+                'protein': sum([(meal.food.protein * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals]),
+                'fat': sum([(meal.food.fat * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals])
+            }
         
-        return Response({'calorie': calorie, 'carbohydrate': carbohydrate, 'protein': protein, 'fat': fat})
+        return Response(summary)
 
-class MealTypeSummaryView(generics.RetrieveAPIView):
+class UserMealDetailView(generics.RetrieveAPIView):
     """__sumary__
     description:
-        사용자의 식단을 MealType으로 요약하여 조회하기 위한 API 뷰
+        사용자의 식단을 상세 조회하기 위한 API 뷰
     """
     permission_classes = [IsAuthenticated]
-    serializer_class = MealSummarySerializer
-
+    serializer_class = UserMealDetailSerializer
+    
     def get(self, request, *args, **kwargs):
         user = request.user
         date = self.kwargs.get('date')
-        meal_type = self.kwargs.get('meal_type')
         
         if date is None:
             raise ValidationError('date 필드는 필수입니다.')
         
-        meals = UserMeal.objects.filter(user=user, date=parse_date(date), meal_type=meal_type)
+        meals = UserMeal.objects.filter(user=user, date=parse_date(date))
         
         if not meals:
-            return Response({'carbohydrate': 0, 'protein': 0, 'fat': 0})
+            return Response([])
         
-        calorie = sum([(meal.food.energy * (meal.serving_size / meal.food.serving_size)) for meal in meals])
-        carbohydrate = sum([(meal.food.carbohydrate * (meal.serving_size / meal.food.serving_size)) for meal in meals])
-        protein = sum([(meal.food.protein * (meal.serving_size / meal.food.serving_size)) for meal in meals])
-        fat = sum([(meal.food.fat * (meal.serving_size / meal.food.serving_size)) for meal in meals])
+        serializer = self.get_serializer(meals, many=True)
+        return Response(serializer.data)
+
+# class MealTypeSummaryView(generics.RetrieveAPIView):
+#     """__sumary__
+#     description:
+#         사용자의 식단을 MealType으로 요약하여 조회하기 위한 API 뷰
+#     """
+#     permission_classes = [IsAuthenticated]
+#     serializer_class = MealSummarySerializer
+
+#     def get(self, request, *args, **kwargs):
+#         user = request.user
+#         date = self.kwargs.get('date')
+#         meal_type = self.kwargs.get('meal_type')
         
-        return Response({'calorie': calorie, 'carbohydrate': carbohydrate, 'protein': protein, 'fat': fat})
+#         if date is None:
+#             raise ValidationError('date 필드는 필수입니다.')
+        
+#         meals = UserMeal.objects.filter(user=user, date=parse_date(date), meal_type=meal_type)
+        
+#         if not meals:
+#             return Response({'calorie': 0, 'carbohydrate': 0, 'protein': 0, 'fat': 0})
+        
+#         summary = {
+#             'calorie': sum([(meal.food.energy * (meal.serving_size / meal.food.serving_size)) for meal in meals]),
+#             'carbohydrate': sum([(meal.food.carbohydrate * (meal.serving_size / meal.food.serving_size)) for meal in meals]),
+#             'protein': sum([(meal.food.protein * (meal.serving_size / meal.food.serving_size)) for meal in meals]),
+#             'fat': sum([(meal.food.fat * (meal.serving_size / meal.food.serving_size)) for meal in meals])
+#         }
+        
+#         return Response(summary)
 
 class MealStreakView(generics.RetrieveAPIView):
     """__sumary__
