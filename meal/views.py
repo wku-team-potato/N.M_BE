@@ -88,6 +88,8 @@ class MealDeleteView(generics.DestroyAPIView):
     
     def destroy(self, request, *args, **kwargs):
         response = super().destroy(request, *args, **kwargs)
+        if response.data is None:
+            response.data = {}
         response.data['message'] = '식단이 성공적으로 삭제되었습니다.'
         return response
     
