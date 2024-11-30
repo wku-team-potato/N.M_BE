@@ -209,6 +209,7 @@ class HeightWeightRecordListView(generics.ListAPIView):
     #     return HeightWeightRecord.objects.filter(user_id=user_id).order_by('-created_at')
 
 from .serializers import RankingSerializer
+from django.db.models import Q
 
 class Top3RankingsView(generics.ListAPIView):
     """
@@ -219,10 +220,10 @@ class Top3RankingsView(generics.ListAPIView):
 
     def list(self, request, *args, **kwargs):
         # 각 카테고리별 TOP 3 추출
-        consecutive_attendance = Profile.objects.all().order_by('-consecutive_attendance_days')[:3]
-        cumulative_attendance = Profile.objects.all().order_by('-cumulative_attendance_days')[:3]
-        consecutive_goals = Profile.objects.all().order_by('-consecutive_goals_achieved')[:3]
-        cumulative_goals = Profile.objects.all().order_by('-cumulative_goals_achieved')[:3]
+        consecutive_attendance = Profile.objects.all().order_by('-consecutive_attendance_days')[:10]
+        cumulative_attendance = Profile.objects.all().order_by('-cumulative_attendance_days')[:10]
+        consecutive_goals = Profile.objects.all().order_by('-consecutive_goals_achieved')[:10]
+        cumulative_goals = Profile.objects.all().order_by('-cumulative_goals_achieved')[:10]
 
         response_data = {
             'consecutive_attendance_rank': [{
@@ -265,21 +266,29 @@ class MyRankingView(generics.RetrieveAPIView):
     def retrieve(self, request, *args, **kwargs):
         profile = self.get_object()
         
-        # 각 카테고리별 자신의 순위 계산
+        # 각 카테고리별 자신의 순위 계산 (동률시 계정 생성일 고려)
         consecutive_attendance_rank = Profile.objects.filter(
-            consecutive_attendance_days__gt=profile.consecutive_attendance_days
+            Q(consecutive_attendance_days__gt=profile.consecutive_attendance_days) |
+            Q(consecutive_attendance_days=profile.consecutive_attendance_days, 
+              user__date_joined__lt=profile.user.date_joined)
         ).count() + 1
         
         cumulative_attendance_rank = Profile.objects.filter(
-            cumulative_attendance_days__gt=profile.cumulative_attendance_days
+            Q(cumulative_attendance_days__gt=profile.cumulative_attendance_days) |
+            Q(cumulative_attendance_days=profile.cumulative_attendance_days,
+              user__date_joined__lt=profile.user.date_joined)
         ).count() + 1
         
         consecutive_goals_rank = Profile.objects.filter(
-            consecutive_goals_achieved__gt=profile.consecutive_goals_achieved
+            Q(consecutive_goals_achieved__gt=profile.consecutive_goals_achieved) |
+            Q(consecutive_goals_achieved=profile.consecutive_goals_achieved,
+              user__date_joined__lt=profile.user.date_joined)
         ).count() + 1
         
         cumulative_goals_rank = Profile.objects.filter(
-            cumulative_goals_achieved__gt=profile.cumulative_goals_achieved
+            Q(cumulative_goals_achieved__gt=profile.cumulative_goals_achieved) |
+            Q(cumulative_goals_achieved=profile.cumulative_goals_achieved,
+              user__date_joined__lt=profile.user.date_joined)
         ).count() + 1
 
         response_data = {
