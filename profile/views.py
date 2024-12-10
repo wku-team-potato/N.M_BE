@@ -10,6 +10,25 @@ from .serializers import HeightWeightRecordSerializer
 from .serializers import UserNameHeightWeightSerializer
 
 from rest_framework.response import Response
+    
+class GetUserProfilebyIdView(generics.RetrieveAPIView):
+    """_summary_
+        description:
+        - Profile 모델의 user_id, username, total_points, height, weight를 가져오는 APIView
+    """
+    queryset = Profile.objects.all()
+    serializer_class = UserProfileSerializer
+    permission_classes = [IsAuthenticated]
+    
+    def retrieve(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+        profile = Profile.objects.get(user_id=user_id)
+        serializer = self.get_serializer(profile)
+        
+        response = Response(serializer.data, status=status.HTTP_200_OK)
+        response.data['message'] = 'user profile이 조회되었습니다.'
+        
+        return response
 
 """
 폐기 : UserNameUpdateView
@@ -213,45 +232,35 @@ from django.db.models import Q
 
 class Top3RankingsView(generics.ListAPIView):
     """
-    연속/누적 출석일수와 목표달성 TOP 3 랭킹을 조회하는 APIView
+    연속/누적 출석일수와 목표달성 TOP 10 랭킹을 조회하는 APIView
     """
     serializer_class = RankingSerializer
     permission_classes = [IsAuthenticated]
 
-    def list(self, request, *args, **kwargs):
-        # 각 카테고리별 TOP 3 추출
-        consecutive_attendance = Profile.objects.all().order_by('-consecutive_attendance_days')[:10]
-        cumulative_attendance = Profile.objects.all().order_by('-cumulative_attendance_days')[:10]
-        consecutive_goals = Profile.objects.all().order_by('-consecutive_goals_achieved')[:10]
-        cumulative_goals = Profile.objects.all().order_by('-cumulative_goals_achieved')[:10]
+    def get_queryset(self):
+        return Profile.objects.none()  # 기본 쿼리셋 비움
 
-        response_data = {
-            'consecutive_attendance_rank': [{
+    def list(self, request, *args, **kwargs):
+        def get_top_profiles(order_field, limit=10):
+            return Profile.objects.order_by(f'-{order_field}', 'created_at')[:limit]
+
+        response_data = {}
+        categories = [
+            ('consecutive_attendance_rank', 'consecutive_attendance_days', '연속 출석'),
+            ('cumulative_attendance_rank', 'cumulative_attendance_days', '누적 출석'),
+            ('consecutive_goals_rank', 'consecutive_goals_achieved', '연속 목표 달성'),
+            ('cumulative_goals_rank', 'cumulative_goals_achieved', '누적 목표 달성'),
+        ]
+
+        for key, field, label in categories:
+            response_data[key] = [{
                 'rank': idx + 1,
                 'username': profile.username,
-                '연속 출석': profile.consecutive_attendance_days
-            } for idx, profile in enumerate(consecutive_attendance)],
-            
-            'cumulative_attendance_rank': [{
-                'rank': idx + 1,
-                'username': profile.username,
-                '누적 출석': profile.cumulative_attendance_days
-            } for idx, profile in enumerate(cumulative_attendance)],
-            
-            'consecutive_goals_rank': [{
-                'rank': idx + 1,
-                'username': profile.username,
-                '연속 목표 달성': profile.consecutive_goals_achieved
-            } for idx, profile in enumerate(consecutive_goals)],
-            
-            'cumulative_goals_rank': [{
-                'rank': idx + 1,
-                'username': profile.username,
-                '누적 목표 달성': profile.cumulative_goals_achieved
-            } for idx, profile in enumerate(cumulative_goals)]
-        }
+                label: getattr(profile, field)
+            } for idx, profile in enumerate(get_top_profiles(field))]
 
         return Response(response_data)
+
 
 class MyRankingView(generics.RetrieveAPIView):
     """

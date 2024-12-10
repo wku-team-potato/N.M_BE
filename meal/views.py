@@ -16,6 +16,47 @@ from django.utils.decorators import method_decorator
 from point.models import PointTransaction
 
 
+class GetMealByuserIdView(generics.ListAPIView):
+    """__sumary__
+    description:
+        사용자의 식단을 조회하기 위한 API 뷰
+    """
+    
+    serializer_class = MealSummarySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        user_id = self.kwargs.get('user_id')
+        date = self.kwargs.get('date')
+        
+        if date is None:
+            raise ValidationError('date 필드는 필수입니다.')
+        
+        meals = UserMeal.objects.filter(user_id=user_id, date=parse_date(date))
+        
+        if not meals:
+            return Response({'breakfast': {}, 'lunch': {}, 'dinner': {}, 'summary': {}})
+        
+        summary = {'breakfast': {}, 'lunch': {}, 'dinner': {}, 'summary': {}}
+        for meal_type in ['breakfast', 'lunch', 'dinner']:
+            meal_type_meals = meals.filter(meal_type=meal_type)
+            summary[meal_type] = {
+                'calorie': sum([(meal.food.energy * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals]),
+                'carbohydrate': sum([(meal.food.carbohydrate * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals]),
+                'protein': sum([(meal.food.protein * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals]),
+                'fat': sum([(meal.food.fat * (meal.serving_size / meal.food.serving_size)) for meal in meal_type_meals])
+            }
+        
+        summary['summary'] = {
+            'calorie': sum([(meal.food.energy * (meal.serving_size / meal.food.serving_size)) for meal in meals]),
+            'carbohydrate': sum([(meal.food.carbohydrate * (meal.serving_size / meal.food.serving_size)) for meal in meals]),
+            'protein': sum([(meal.food.protein * (meal.serving_size / meal.food.serving_size)) for meal in meals]),
+            'fat': sum([(meal.food.fat * (meal.serving_size / meal.food.serving_size)) for meal in meals])
+        }
+        
+        return Response(summary)
+        
+    
 
 class MealCreateView(generics.CreateAPIView):
     """__sumary__

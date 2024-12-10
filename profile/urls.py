@@ -26,4 +26,5 @@ urlpatterns = [
     # 랭킹
     path('rankings/top3/', views.Top3RankingsView.as_view(), name='rankings-top3'),
     path('rankings/my/', views.MyRankingView.as_view(), name='rankings-my'),
+    path('userprofile/<int:user_id>/', views.GetUserProfilebyIdView.as_view(), name='userprofile'),
 ]
