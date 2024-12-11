@@ -7,7 +7,7 @@ class Item(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
     price = models.IntegerField()
-    img = models.ImageField(upload_to='media/images/items/')
+    img = models.TextField()
     created_at = models.DateField(auto_now_add=True)
     
     class Meta:

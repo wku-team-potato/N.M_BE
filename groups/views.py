@@ -7,15 +7,20 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import ValidationError
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 class CreateGroup(generics.CreateAPIView):
     """
     그룹을 생성하는 API 뷰
 
-    description:
-        - 새로운 그룹을 생성합니다.
-        - 그룹 이름은 중복될 수 없습니다.
-        - 그룹 생성자는 요청을 보낸 사용자로 자동 설정됩니다.
+    새로운 그룹을 생성합니다.
+    
+    
+    그룹 이름은 중복될 수 없습니다.
+    
+    
+    그룹 생성자는 요청을 보낸 사용자로 자동 설정됩니다.
     """
     
     queryset = Group.objects.all()
@@ -73,8 +78,7 @@ class GroupListView(generics.ListAPIView):
     """
     사용자가 속한 그룹 목록을 조회하는 API 뷰
 
-    description:
-        - 사용자가 GroupMember로 속한 모든 그룹 목록을 조회합니다.
+    사용자가 GroupMember로 속한 모든 그룹 목록을 조회합니다.
     """
     serializer_class = GroupSerializer
     permission_classes = [IsAuthenticated]
@@ -88,8 +92,7 @@ class GroupAllListView(generics.ListAPIView):
     """
     모든 그룹 목록을 조회하는 API 뷰
 
-    description:
-        - 모든 그룹 목록을 조회합니다.
+    모든 그룹 목록을 조회합니다.
     """
     
     queryset = Group.objects.all()
@@ -103,8 +106,7 @@ class GroupSearchListView(generics.ListAPIView):
     """
     그룹 검색 결과를 조회하는 API 뷰
 
-    description:
-        - 검색어에 매칭되는 그룹 목록을 조회합니다.
+    검색어에 매칭되는 그룹 목록을 조회합니다.
     """
     
     queryset = Group.objects.all()
@@ -119,9 +121,9 @@ class GroupUpdateView(generics.UpdateAPIView):
     """
     그룹 정보를 수정하는 API 뷰
 
-    description:
-        - 그룹 정보를 수정합니다.
-        - 그룹 생성자만 수정할 수 있습니다.
+    그룹 정보를 수정합니다.
+    
+    그룹 생성자만 수정할 수 있습니다.
     """
     
     queryset = Group.objects.all()
@@ -170,9 +172,9 @@ class GroupDeleteView(generics.DestroyAPIView):
     """
     그룹을 삭제하는 API 뷰
 
-    description:
-        - 그룹을 삭제합니다.
-        - 그룹 생성자만 삭제할 수 있습니다.
+    그룹을 삭제합니다.
+    
+    그룹 생성자만 삭제할 수 있습니다.
     """
     
     queryset = Group.objects.all()
@@ -188,8 +190,8 @@ class GroupJoinView(generics.CreateAPIView):
     """
     그룹에 가입하는 API 뷰
 
-    description:
-        - 그룹에 가입합니다.
+
+    그룹에 가입합니다.
     """
     
     queryset = GroupMember.objects.all()
@@ -214,6 +216,8 @@ class GroupJoinView(generics.CreateAPIView):
     def create(self, request, *args, **kwargs):
         """
         그룹 가입 요청 처리 및 통일된 응답 반환
+        
+        그룹 가입에 실패하면 ValidationError를 발생시킵니다.
         """
         try:
             serializer = self.get_serializer(data=request.data)
@@ -243,10 +247,9 @@ class GroupLeaveView(generics.DestroyAPIView):
     """
     그룹에서 탈퇴하는 API 뷰
 
-    description:
-        - 그룹에서 탈퇴합니다.
-        - 그룹 생성자도 탈퇴할 수 있습니다.
-        - 탈퇴 후 그룹 인원이 0명이면 그룹을 삭제합니다.
+    그룹에서 탈퇴합니다.
+    그룹 생성자도 탈퇴할 수 있습니다.
+    탈퇴 후 그룹 인원이 0명이면 그룹을 삭제합니다.
     """
     queryset = GroupMember.objects.all()
     serializer_class = GroupMemberSerializer
@@ -288,6 +291,7 @@ class GroupLeaveView(generics.DestroyAPIView):
     def destroy(self, request, *args, **kwargs):
         """
         그룹 탈퇴 및 그룹 삭제 여부를 처리하고 통일된 응답 반환
+
         """
         instance = self.get_object()
 
@@ -318,11 +322,28 @@ class GroupTopRankingView(APIView):
     """
     상위 10개 그룹 랭킹을 조회하는 API 뷰
 
-    description:
-        - total_points를 기준으로 상위 10개 그룹 랭킹을 조회합니다.
+    total_points를 기준으로 상위 10개 그룹 랭킹을 조회합니다.
     """
     permission_classes = [IsAuthenticated]
 
+    @swagger_auto_schema(
+        operation_description="상위 10개 그룹 랭킹을 조회",
+        responses={
+            200: openapi.Response(
+                description="성공",
+                examples={
+                    "application/json": [
+                        {
+                            "rank": 1,
+                            "group_name": "Health Enthusiasts",
+                            "total_points": 10000,
+                            "updated_at": "2024-12-09T12:34:56Z"
+                        }
+                    ]
+                }
+            )
+        }
+    )
     def get(self, request, *args, **kwargs):
         # total_points 기준으로 내림차순 정렬 후 상위 10개 가져오기
         rankings = GroupRanking.objects.all().order_by('-total_points')[:10]
@@ -343,6 +364,8 @@ class GroupTopRankingView(APIView):
 class UpdatePublicInfoView(generics.UpdateAPIView):
     """
     그룹 멤버의 정보 공개 여부를 수정하는 API 뷰
+    
+    그룹 멤버의 정보 공개 여부를 수정합니다.
     """
     queryset = GroupMember.objects.all()
     serializer_class = PublicInfoSerializer
@@ -400,8 +423,7 @@ class GroupDetailView(generics.RetrieveAPIView):
     """
     그룹의 상세 정보를 조회하는 API 뷰
 
-    description:
-        - 그룹의 상세 정보와 그룹에 등록된 사용자 정보를 조회합니다.
+    그룹의 상세 정보와 그룹에 등록된 사용자 정보를 조회합니다.
     """
     
     queryset = Group.objects.all()

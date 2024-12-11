@@ -17,9 +17,11 @@ from point.models import PointTransaction
 
 
 class GetMealByuserIdView(generics.ListAPIView):
-    """__sumary__
-    description:
-        사용자의 식단을 조회하기 위한 API 뷰
+    """
+    사용자의 식단을 조회하기 위한 API 뷰
+    
+    
+    사용자 아이디와 날짜를 받아 해당 사용자의 식단을 조회합니다.
     """
     
     serializer_class = MealSummarySerializer
@@ -59,12 +61,15 @@ class GetMealByuserIdView(generics.ListAPIView):
     
 
 class MealCreateView(generics.CreateAPIView):
-    """__sumary__
-    description:
-        사용자의 식단을 기록하기 위한 API 뷰
-        기록시 그 날 첫 등록이면 point를 지급
-        기록시 그 날 아침, 점심, 저녁 모두 등록했으면 point를 지급
     """
+    사용자의 식단을 기록하기 위한 API 뷰
+    
+    기록시 그 날 첫 등록이면 point를 지급  
+    
+    기록시 그 날 아침, 점심, 저녁 모두 등록했으면 point를 지급
+    
+    """
+    
     queryset = UserMeal.objects.all()
     serializer_class = UserMealSerializer
     permission_classes = [IsAuthenticated]  # 인증된 사용자만 접근 가능
@@ -105,9 +110,11 @@ class MealCreateView(generics.CreateAPIView):
         return response
 
 class MealUpdateView(generics.UpdateAPIView):
-    """__sumary__
-    description:
-        사용자의 식단을 수정하기 위한 API 뷰
+    """
+    사용자의 식단을 수정하기 위한 API 뷰
+    
+    사용자의 식단을 수정할 수 있습니다.
+    
     """
     queryset = UserMeal.objects.all()
     serializer_class = UserMealSerializer
@@ -119,9 +126,10 @@ class MealUpdateView(generics.UpdateAPIView):
         return response
     
 class MealDeleteView(generics.DestroyAPIView):
-    """__sumary__
-    description:
-        사용자의 식단을 삭제하기 위한 API 뷰
+    """
+    사용자의 식단을 삭제하기 위한 API 뷰
+    
+    사용자의 식단을 삭제할 수 있습니다.
     """
     queryset = UserMeal.objects.all()
     serializer_class = UserMealSerializer
@@ -186,9 +194,9 @@ class MealDeleteView(generics.DestroyAPIView):
 #         return queryset
 
 class MealTypeListView(generics.ListAPIView):
-    """_summary_
-
-    description:
+    """
+        사용자의 식단을 MealType으로 조회하기 위한 API 뷰
+        
         사용자의 식단을 MealType으로 조회하기 위한 API 뷰
     """
     queryset = UserMeal.objects.all()
@@ -220,9 +228,10 @@ class MealTypeListView(generics.ListAPIView):
 
 
 class MealSummaryView(generics.RetrieveAPIView):
-    """__sumary__
-    description:
+    """
         사용자의 식단을 요약하여 조회하기 위한 API 뷰
+        
+        사용자의 식단을 요약하여 조회합니다.
     """
     permission_classes = [IsAuthenticated]
     serializer_class = MealSummarySerializer
@@ -258,9 +267,11 @@ class MealSummaryView(generics.RetrieveAPIView):
         return Response(summary)
 
 class UserMealDetailView(generics.RetrieveAPIView):
-    """__sumary__
-    description:
+    """
         사용자의 식단을 상세 조회하기 위한 API 뷰
+        
+        
+        사용자의 식단을 상세 조회합니다.
     """
     permission_classes = [IsAuthenticated]
     serializer_class = UserMealDetailSerializer
@@ -311,9 +322,11 @@ class UserMealDetailView(generics.RetrieveAPIView):
 #         return Response(summary)
 
 class MealStreakView(generics.RetrieveAPIView):
-    """__sumary__
-    description:
+    """
         오늘 기준으로 몇일 연속으로 식단을 등록했는지 확인하는 API 뷰
+        
+        
+        오늘 기준으로 몇일 연속으로 식단을 등록했는지 확인합니다.
     """
     permission_classes = [IsAuthenticated]
     serializer_class = StreakSerializer

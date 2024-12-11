@@ -12,10 +12,12 @@ from .serializers import UserNameHeightWeightSerializer
 from rest_framework.response import Response
     
 class GetUserProfilebyIdView(generics.RetrieveAPIView):
-    """_summary_
-        description:
-        - Profile 모델의 user_id, username, total_points, height, weight를 가져오는 APIView
     """
+    특정 사용자의 프로필 정보를 조회하는 APIView
+    
+    user_id에 해당하는 사용자의 프로필 정보를 조회합니다.
+    """
+    
     queryset = Profile.objects.all()
     serializer_class = UserProfileSerializer
     permission_classes = [IsAuthenticated]
@@ -86,9 +88,10 @@ class GetUserProfilebyIdView(generics.RetrieveAPIView):
 #     lookup_field = 'user_id'
 
 class HeightWeightUpdateView(generics.UpdateAPIView):
-    """_summary_
-        description:
-        - Profile 모델의 height, weight를 업데이트하는 APIView
+    """
+    Profile 모델의 height, weight를 업데이트하는 APIView
+    
+    Profile 모델의 height, weight를 업데이트합니다.
     """
     queryset = Profile.objects.all()
     serializer_class = UserHeightWeightSerializer
@@ -110,9 +113,10 @@ class HeightWeightUpdateView(generics.UpdateAPIView):
         return response
 
 class UserNameHeightWeightUpdateView(generics.UpdateAPIView):
-    """_summary_
-        description:
-        - Profile 모델의 username, height, weight를 업데이트하는 APIView
+    """
+    Profile 모델의 username, height, weight를 업데이트하는 APIView
+    
+    Profile 모델의 username, height, weight를 업데이트합니다.
     """
     queryset = Profile.objects.all()
     serializer_class = UserNameHeightWeightSerializer
@@ -173,9 +177,11 @@ class UserNameHeightWeightUpdateView(generics.UpdateAPIView):
 #     lookup_field = 'user_id'
 
 class UserTotalPointsRetrieveView(generics.RetrieveAPIView):
-    """_summary_
-        description:
-        - Profile 모델의 user_id, total_points를 가져오는 APIView
+    """
+    Profile 모델의 total_points를 조회하는 APIView
+    
+    
+    Profile 모델의 total_points를 조회합니다.
     """
     queryset = Profile.objects.all()
     serializer_class = UserTotalPointsSerializer
@@ -207,9 +213,11 @@ class UserTotalPointsRetrieveView(generics.RetrieveAPIView):
 #     lookup_field = 'user_id'
     
 class HeightWeightRecordListView(generics.ListAPIView):
-    """_summary_
-        description:
-        - HeightWeightRecord 모델의 user_id, height, weight, created_at를 가져오는 APIView
+    """
+    Profile의 height, weight 기록을 조회하는 APIView
+    
+    
+    Profile의 height, weight 기록을 조회합니다.
     """
     queryset = HeightWeightRecord.objects.all()
     serializer_class = HeightWeightRecordSerializer
@@ -233,6 +241,8 @@ from django.db.models import Q
 class Top3RankingsView(generics.ListAPIView):
     """
     연속/누적 출석일수와 목표달성 TOP 10 랭킹을 조회하는 APIView
+    
+    각 카테고리별 TOP 10 랭킹을 조회합니다.
     """
     serializer_class = RankingSerializer
     permission_classes = [IsAuthenticated]
@@ -265,6 +275,8 @@ class Top3RankingsView(generics.ListAPIView):
 class MyRankingView(generics.RetrieveAPIView):
     """
     자신의 랭킹을 조회하는 APIView
+    
+    자신의 랭킹을 조회합니다.
     """
     permission_classes = [IsAuthenticated]
     serializer_class = RankingSerializer

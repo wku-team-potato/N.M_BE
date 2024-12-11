@@ -13,13 +13,16 @@ from django.core.validators import validate_email
 
 from profile.models import Profile
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
 import json
 
 # Create your views here.
 @method_decorator(csrf_exempt, name='dispatch')
 class SignUp(View):
-    def get(self, request):
-        return HttpResponse('[SignUp API] EndPoint is working')
+    # def get(self, request):
+    #     return HttpResponse('[SignUp API] EndPoint is working')
 
     def post(self, request):
         data = json.loads(request.body)
@@ -55,8 +58,8 @@ class SignUp(View):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class Login(View):
-    def get(self, request):
-        return HttpResponse('[Login API] EndPoint is working')
+    # def get(self, request):
+    #     return HttpResponse('[Login API] EndPoint is working')
     
     def post(self, request):
         data = json.loads(request.body)
@@ -76,6 +79,7 @@ class Login(View):
 
 # @method_decorator(csrf_exempt, name='dispatch')
 class Logout(View):
+    
     def post(self, request):
         logout(request)
         return JsonResponse({'success': '로그아웃'}, status=200)
