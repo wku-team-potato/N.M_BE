@@ -124,13 +124,27 @@ class ItemListView(generics.ListCreateAPIView):
 
 class PurchaseRecordListView(generics.ListCreateAPIView):
     """
+    # 구매 기록 조회 API
+    
+    # PurchaseRecord 모델의 전체 목록을 조회합니다.
+    """
+    
+    queryset = PurchaseRecord.objects.all()
+    serializer_class = PurchaseRecordSerializer
+    lookup_field = 'user_id'
+    
+class PurchaseRecord_ListView(generics.ListCreateAPIView):
+    """
     구매 기록 조회 API
     
     PurchaseRecord 모델의 전체 목록을 조회합니다.
     """
+    permission_classes = [IsAuthenticated]
     queryset = PurchaseRecord.objects.all()
     serializer_class = PurchaseRecordSerializer
-    lookup_field = 'user_id'
+    
+    def get_queryset(self):
+        return PurchaseRecord.objects.filter(user=self.request.user)
 
 # ############ Not Using ############
 

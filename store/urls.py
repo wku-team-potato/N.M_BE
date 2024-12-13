@@ -9,7 +9,8 @@ urlpatterns = [
     # 아이템 목록 조회
     path("items/list/", views.ItemListView.as_view(), name="item-list"),
     # 구매 기록 조회
-    path("purchase-records/<int:id>/", views.PurchaseRecordListView.as_view(), name="purchase-record-list"),
+    # path("purchase-records/<int:id>/", views.PurchaseRecordListView.as_view(), name="purchase-record-list"),
+    path("purchaserecords/", views.PurchaseRecord_ListView.as_view(), name="purchase-record-list"),
 
     # ############ Not Using ############
     # 아이템 생성
