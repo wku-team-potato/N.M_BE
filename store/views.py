@@ -144,8 +144,7 @@ class PurchaseRecord_ListView(generics.ListCreateAPIView):
     serializer_class = PurchaseRecordSerializer
     
     def get_queryset(self):
-        return PurchaseRecord.objects.filter(user=self.request.user)
-
+        return PurchaseRecord.objects.filter(user=self.request.user).order_by('-created_at')
 # ############ Not Using ############
 
 class ItemCreateView(generics.CreateAPIView):

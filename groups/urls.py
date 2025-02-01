@@ -13,4 +13,5 @@ urlpatterns = [
     path('top-ranking/', views.GroupTopRankingView.as_view(), name='group-ranking'),
     path('update-public/<int:group_id>/', views.UpdatePublicInfoView.as_view(), name='update-public'),
     path('members/detail/<int:pk>/', views.GroupDetailView.as_view(), name='group-member-detail'),
+    path('member/detail/<int:group_id>/', views.MemberInfowithgroupView.as_view(), name='group-member-detail'),
 ]

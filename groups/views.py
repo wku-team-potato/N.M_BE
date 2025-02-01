@@ -316,7 +316,43 @@ class GroupLeaveView(generics.DestroyAPIView):
             "deleted": group_deleted
         }, status=status.HTTP_200_OK)
 
+# class MemberInfowithgroupView(generics.ListAPIView):
+#     """
+#     그룹의 멤버 정보를 조회하는 API 뷰
 
+#     그룹의 멤버 정보를 조회합니다.
+#     """
+#     queryset = GroupMember.objects.all()
+#     serializer_class = GroupMemberSerializer
+#     permission_classes = [IsAuthenticated]
+
+#     def get_queryset(self):
+#         group_id = self.kwargs.get('group_id')
+#         return GroupMember.objects.filter(group_id=group_id).order_by('-joined_at')
+
+from rest_framework.exceptions import PermissionDenied
+
+class MemberInfowithgroupView(generics.ListAPIView):
+    queryset = GroupMember.objects.all()
+    serializer_class = GroupMemberSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        if getattr(self, 'swagger_fake_view', False):  # swagger 스키마 생성 처리
+            return GroupMember.objects.none()
+
+        group_id = self.kwargs.get('group_id')
+        user = self.request.user
+        
+        # 현재 사용자가 그룹의 멤버인지 확인
+        if not GroupMember.objects.filter(group_id=group_id, user_id=user.id).exists():
+            raise PermissionDenied("You are not a member of this group")
+        
+        # 본인의 정보만 반환
+        return GroupMember.objects.filter(
+            group_id=group_id,
+            user_id=user.id
+        ).order_by('-joined_at')
 
 class GroupTopRankingView(APIView):
     """

@@ -1,17 +1,32 @@
-# Python 베이스 이미지 사용
-FROM python:3.9.13
+# Base image
+FROM python:3.9-slim
 
-# 작업 디렉토리 설정
+# Install dependencies
+RUN apt-get update && apt-get install -y \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    pkg-config \
+    default-libmysqlclient-dev \
+    build-essential \
+    python3-dev \
+    zlib1g-dev \
+    libssl-dev
+
+# Set working directory
 WORKDIR /app
 
-# 종속성 파일 복사
+# Install Python dependencies
 COPY requirements.txt /app/
-
-# 종속성 설치
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 애플리케이션 코드 복사
-COPY . /app/
+# Copy project files
+COPY . /app
+
+# Collect static files
+RUN python manage.py collectstatic --noinput
+
+# Expose port
+EXPOSE 8000
 
 # Gunicorn 실행 설정 (마이그레이션 포함)
 CMD ["sh", "-c", "python manage.py makemigrations && python manage.py migrate && gunicorn --workers=2 --threads=2 --bind=0.0.0.0:8000 config.wsgi:application"]

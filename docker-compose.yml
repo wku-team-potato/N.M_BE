@@ -1,0 +1,43 @@
+services:
+  django:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    env_file:
+      - .env
+    container_name: api_server
+    ports:
+      - "8000:8000"
+    networks:
+      - api_network
+    environment:
+      - DJANGO_SECRET_KEY=secret
+      - DJANGO_DEBUG=True
+      - DJANGO_ALLOWED_HOSTS=*
+    volumes:
+      - static_volume:/app/static
+    image: localhost:5000/api-server-django:latest
+    restart: always
+
+  nginx:
+    build:
+      context: .
+      dockerfile: Dockerfile.nginx
+    container_name: nginx_api_server
+    ports:
+      - "80:80"
+    networks:
+      - api_network
+    depends_on:
+      - django
+    volumes:
+      - static_volume:/app/static
+    image: localhost:5000/api-server-nginx:latest
+    restart: unless-stopped
+
+networks:
+  api_network:
+    driver: bridge
+
+volumes:
+  static_volume:

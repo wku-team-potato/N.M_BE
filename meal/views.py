@@ -15,6 +15,8 @@ from django.utils.decorators import method_decorator
 # from django.views.decorators.csrf import csrf_exempt
 from point.models import PointTransaction
 
+from groups.models import GroupRanking, GroupMember
+
 
 class GetMealByuserIdView(generics.ListAPIView):
     """
@@ -74,40 +76,63 @@ class MealCreateView(generics.CreateAPIView):
     serializer_class = UserMealSerializer
     permission_classes = [IsAuthenticated]  # 인증된 사용자만 접근 가능
     
+    # def create(self, request, *args, **kwargs):
+    #     user = request.user
+    #     profile = user.profile
+    #     today = date.today()
+        
+    #     is_first_meal = not UserMeal.objects.filter(user=user, date=today).exists()
+        
+    #     if is_first_meal:
+    #         user_groups = GroupMember.objects.filter(user_id=user)
+    #         for group_member in user_groups:
+    #             try:
+    #                 group_ranking = GroupRanking.objects.get(group_id=group_member.group_id)
+    #                 group_ranking.total_points += 100
+    #                 group_ranking.save()
+    #             except GroupRanking.DoesNotExist:
+    #                 continue
+        
+    #     today_meals = UserMeal.objects.filter(user=user, date=today)
+        
+    #     response = super().create(request, *args, **kwargs)
+    #     response.data['message'] = '식단이 성공적으로 기록되었습니다.'
+        
+    #     return response
+    
     def create(self, request, *args, **kwargs):
         user = request.user
-        profile = user.profile
         today = date.today()
         
-        today_meals = UserMeal.objects.filter(user=user, date=today)
+        print("현재 유저:", user)
+        print("현재 날짜:", today)
+        print("날짜 타입:", type(today))
         
+        # 당일 첫 등록 체크 (날짜만 비교)
+        existing_meals = UserMeal.objects.filter(
+            user=user,
+            created_at=today
+        ).count() == 0
+
+        print("existing_meals:", existing_meals)
+        
+        # 먼저 식단 저장
         response = super().create(request, *args, **kwargs)
+        
+        # 첫 등록인 경우에만 포인트 부여 (count가 0일때)
+        if existing_meals:
+            user_groups = GroupMember.objects.filter(user_id=user)
+            for group_member in user_groups:
+                try:
+                    group_ranking = GroupRanking.objects.get(group_id=group_member.group_id)
+                    group_ranking.total_points += 100
+                    group_ranking.save()
+                except GroupRanking.DoesNotExist:
+                    continue
+        
         response.data['message'] = '식단이 성공적으로 기록되었습니다.'
-        
-        # point_earned = False
-        
-        # if not PointTransaction.objects.filter(user=user, created_at=today, transaction_type="출석 보상").exists():
-        #     profile.total_points += 100
-        #     profile.save()
-        #     PointTransaction.objects.create(user=user, points_changed=100, transaction_type="출석 보상", description="식단을 등록하여 100포인트를 획득하였습니다.")
-        #     point_earned = True
-        
-        # meal_types = today_meals.values_list('meal_type', flat=True)
-        # if {'breakfast', 'lunch', 'dinner'}.issubset(meal_types) and not PointTransaction.objects.filter(user=user, created_at=today, transaction_type='모든 식단 등록').exists():
-        #     profile.total_points += 200
-        #     profile.save()
-        #     PointTransaction.objects.create(
-        #         user=user,
-        #         points_changed=200,
-        #         transaction_type='모든 식단 등록',
-        #         description='아침, 점심, 저녁 식단을 모두 등록하여 200포인트를 획득하였습니다.'
-        #     )
-        #     point_earned = True
-        
-        # if point_earned:
-        #     response.data['point_message'] = '포인트를 획득하였습니다'
-        
         return response
+    
 
 class MealUpdateView(generics.UpdateAPIView):
     """
