@@ -10,11 +10,9 @@
 
 ### 🔹 백엔드
 <p align="center">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=python,django" />
-    <img src="https://img.shields.io/badge/Gunicorn-499848?style=for-the-badge&logo=gunicorn&logoColor=white">
-    <img src="https://skillicons.dev/icons?i=nginx" />
-  </a>
+  <img src="https://skillicons.dev/icons?i=python,django" />
+  <img src="https://img.shields.io/badge/Gunicorn-499848?style=for-the-badge&logo=gunicorn&logoColor=white">
+  <img src="https://skillicons.dev/icons?i=nginx" />
 </p>
 
 - **Python**: 웹 애플리케이션 개발을 위한 주요 프로그래밍 언어
@@ -24,18 +22,14 @@
 
 ### 🔹 데이터베이스
 <p align="center">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=mysql" />
-  </a>
+  <img src="https://skillicons.dev/icons?i=mysql" />
 </p>
 
 - **MySQL**: 관계형 데이터베이스 관리 시스템 (RDBMS)으로, 데이터 저장 및 관리
 
 ### 🔹 배포 & 인프라
 <p align="center">
-  <a href="https://skillicons.dev">
-    <img src="https://skillicons.dev/icons?i=docker,azure" />
-  </a>
+  <img src="https://skillicons.dev/icons?i=docker,azure" />
 </p>
 
 - **Docker**: 애플리케이션을 컨테이너화하여 환경에 구애받지 않고 일관된 실행을 보장
